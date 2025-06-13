@@ -1,16 +1,20 @@
-//
-//  ContentView.swift
-//  MandelbrotGPU
-//
-//  Created by Rohan Karamel on 6/13/25.
-//
-
 import SwiftUI
 
-struct ContentView: View
-{
-    var body: some View
-    {
-        MetalView().frame(minWidth: 600, minHeight: 400)
+struct ContentView: View {
+    @State private var iterations: UInt32 = 100
+
+    var body: some View {
+        VStack {
+            MetalView().frame(minWidth: 1200, minHeight: 800)
+
+            Slider(value: Binding(get: {
+                Double(iterations)
+            }, set: { newVal in
+                iterations = UInt32(newVal)
+                MandelbrotRenderer.shared?.maxIterations = iterations
+            }), in: 50...1000, step: 10)
+            .padding()
+        }
     }
 }
+
