@@ -10,6 +10,7 @@
 		39D4B3F02DFC151500395D48 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 39D4B3EF2DFC151000395D48 /* README.md */; };
 		39D4B3F62DFC186400395D48 /* mandelbrot_16k.png in Resources */ = {isa = PBXBuildFile; fileRef = 39D4B3F52DFC186400395D48 /* mandelbrot_16k.png */; };
 		39D4B3F82DFC190400395D48 /* banner.png in Resources */ = {isa = PBXBuildFile; fileRef = 39D4B3F72DFC190400395D48 /* banner.png */; };
+		39D4B3FA2DFC1AD200395D48 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 39D4B3F92DFC1ACC00395D48 /* .gitignore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,6 +37,7 @@
 		39D4B3EF2DFC151000395D48 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		39D4B3F52DFC186400395D48 /* mandelbrot_16k.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mandelbrot_16k.png; sourceTree = "<group>"; };
 		39D4B3F72DFC190400395D48 /* banner.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = banner.png; sourceTree = "<group>"; };
+		39D4B3F92DFC1ACC00395D48 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -84,6 +86,7 @@
 		39D4B3AA2DFBFC5200395D48 = {
 			isa = PBXGroup;
 			children = (
+				39D4B3F92DFC1ACC00395D48 /* .gitignore */,
 				39D4B3EF2DFC151000395D48 /* README.md */,
 				39D4B3B52DFBFC5200395D48 /* MandelbrotGPU */,
 				39D4B3C72DFBFC5200395D48 /* MandelbrotGPUTests */,
@@ -226,6 +229,7 @@
 			files = (
 				39D4B3F02DFC151500395D48 /* README.md in Resources */,
 				39D4B3F62DFC186400395D48 /* mandelbrot_16k.png in Resources */,
+				39D4B3FA2DFC1AD200395D48 /* .gitignore in Resources */,
 				39D4B3F82DFC190400395D48 /* banner.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
