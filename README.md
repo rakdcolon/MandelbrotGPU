@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="banner.png" width="1200"/>
+  <img src="banner.png" width="350"/>
 </p>
 
 
@@ -14,7 +14,7 @@ MandelbrotGPU is an interactive, high-resolution Mandelbrot set visualizer built
 
 ## Example Render
 <p align="center">
-  <img src="mandelbrot_16k.png" width="600"/>
+  <img src="mandelbrot_16k.png" width="1200"/>
 </p>
 
 ## Getting Started
