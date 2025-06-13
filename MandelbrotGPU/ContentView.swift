@@ -7,18 +7,10 @@
 
 import SwiftUI
 
-struct ContentView: View {
-    var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
-        }
-        .padding()
+struct ContentView: View
+{
+    var body: some View
+    {
+        MetalView().frame(minWidth: 600, minHeight: 400)
     }
-}
-
-#Preview {
-    ContentView()
 }
