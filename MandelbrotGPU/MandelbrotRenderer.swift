@@ -113,5 +113,50 @@ class MandelbrotRenderer: NSObject, MTKViewDelegate {
         commandBuffer.present(drawable)
         commandBuffer.commit()
     }
+    
+    func exportCurrentImage(to url: URL) {
+        let width = outputTexture.width
+        let height = outputTexture.height
+
+        let bytesPerPixel = 4
+        let bytesPerRow = width * bytesPerPixel
+        let dataSize = height * bytesPerRow
+
+        let region = MTLRegionMake2D(0, 0, width, height)
+        let buffer = UnsafeMutableRawPointer.allocate(byteCount: dataSize, alignment: bytesPerPixel)
+        defer { buffer.deallocate() }
+
+        outputTexture.getBytes(buffer,
+                               bytesPerRow: bytesPerRow,
+                               from: region,
+                               mipmapLevel: 0)
+
+        guard let colorSpace = CGColorSpace(name: CGColorSpace.sRGB),
+              let context = CGContext(data: buffer,
+                                      width: width,
+                                      height: height,
+                                      bitsPerComponent: 8,
+                                      bytesPerRow: bytesPerRow,
+                                      space: colorSpace,
+                                      bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue),
+              let cgImage = context.makeImage() else {
+            print("Failed to create CGImage.")
+            return
+        }
+
+        let nsImageRep = NSBitmapImageRep(cgImage: cgImage)
+        guard let pngData = nsImageRep.representation(using: .png, properties: [:]) else {
+            print("Failed to create PNG data.")
+            return
+        }
+
+        do {
+            try pngData.write(to: url)
+            print("✅ Image exported to \(url.path)")
+        } catch {
+            print("❌ Failed to write image: \(error)")
+        }
+    }
+
 }
 
