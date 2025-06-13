@@ -1,6 +1,6 @@
-# MandelbrotGPU: High-Precision GPU Mandelbrot Visualizer for macOS
-
 ![screenshot](banner.png)
+
+# MandelbrotGPU: High-Precision GPU Mandelbrot Visualizer for macOS
 
 MandelbrotGPU is an interactive, high-resolution Mandelbrot set visualizer built with Swift, Metal, and MetalKit. It features real-time GPU rendering, buttery-smooth zoom and pan, and the ability to generate ultra-high-resolution fractal imagery — including **16K** exports.
 
