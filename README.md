@@ -1,7 +1,5 @@
-<p align=center>
-
-![screenshot](banner.png)
-
+<p align="center">
+  <img src="banner.png" width="1200"/>
 </p>
 
 
