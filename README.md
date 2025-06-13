@@ -1,4 +1,9 @@
+<p align=center>
+
 ![screenshot](banner.png)
+
+</p>
+
 
 # MandelbrotGPU: High-Precision GPU Mandelbrot Visualizer for macOS
 
