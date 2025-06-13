@@ -17,15 +17,42 @@ struct MetalView: NSViewRepresentable {
 
         context.coordinator.renderer = r
 
-        (view as ZoomableMTKView).onZoom = { factor in
-            r.scale *= factor
+        (view as ZoomableMTKView).onZoom = { zoomFactor, mousePos in
+            guard let r = renderer.renderer else { return }
+
+            let viewSize = view.bounds.size
+            let aspect = Float(view.drawableSize.width / view.drawableSize.height)
+
+            let px = Float(mousePos.x / viewSize.width - 0.5)
+            let py = Float(0.5 - mousePos.y / viewSize.height)
+
+            let pointBefore = SIMD2<Float>(
+                px * r.scale * 2.0 * aspect + r.center.x,
+                py * r.scale * 2.0 + r.center.y
+            )
+
+            r.targetScale *= zoomFactor
+
+            let pointAfter = SIMD2<Float>(
+                px * r.targetScale * 2.0 * aspect + r.center.x,
+                py * r.targetScale * 2.0 + r.center.y
+            )
+
+            let horizontalSensitivity: Float = 0.25  // <— reduce to dampen horizontal effect
+            let verticalSensitivity: Float = 0.25
+
+            let delta = pointBefore - pointAfter
+            let dampenedDelta = SIMD2<Float>(delta.x * horizontalSensitivity, delta.y * verticalSensitivity)
+
+            r.targetCenter += dampenedDelta
         }
 
         (view as ZoomableMTKView).onPan = { panAmount in
-            let view = view as ZoomableMTKView
+            guard let r = renderer.renderer else { return }
             let aspect = Float(view.drawableSize.width / view.drawableSize.height)
-            r.center.x += panAmount.x * r.scale * 2.0 * aspect
-            r.center.y += panAmount.y * r.scale * 2.0
+            
+            r.targetCenter.x += panAmount.x * r.scale * 2.0 * aspect
+            r.targetCenter.y += panAmount.y * r.scale * 2.0
         }
 
 

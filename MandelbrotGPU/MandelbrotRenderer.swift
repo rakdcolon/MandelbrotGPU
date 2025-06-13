@@ -1,6 +1,5 @@
 import Metal
 import MetalKit
-
 import simd
 
 struct MandelbrotUniforms {
@@ -9,14 +8,14 @@ struct MandelbrotUniforms {
     var maxIterations: UInt32
 }
 
-
 class MandelbrotRenderer: NSObject, MTKViewDelegate {
     private let device: MTLDevice
     private let commandQueue: MTLCommandQueue
     private var computePipeline: MTLComputePipelineState!
-
     private var uniformsBuffer: MTLBuffer!
-    
+    private var outputTexture: MTLTexture!
+
+    private let targetSize = MTLSize(width: 15360, height: 8640, depth: 1)
     static var shared: MandelbrotRenderer?
 
     // Interaction State
@@ -24,13 +23,31 @@ class MandelbrotRenderer: NSObject, MTKViewDelegate {
     var scale: Float = 2.0
     var maxIterations: UInt32 = 100
 
+    var targetScale: Float = 1.5
+    var zoomAnimationSpeed: Float = 0.1
+    var targetCenter: SIMD2<Float> = SIMD2<Float>(-0.5, 0.0)
+
     init(view: MTKView) {
         self.device = view.device!
         self.commandQueue = device.makeCommandQueue()!
+        self.targetScale = self.scale
+        self.targetCenter = self.center
         super.init()
         MandelbrotRenderer.shared = self
         view.delegate = self
+        createOutputTexture()
         loadShader()
+    }
+
+    private func createOutputTexture() {
+        let desc = MTLTextureDescriptor.texture2DDescriptor(
+            pixelFormat: .bgra8Unorm,
+            width: targetSize.width,
+            height: targetSize.height,
+            mipmapped: false
+        )
+        desc.usage = [.shaderWrite, .shaderRead]
+        outputTexture = device.makeTexture(descriptor: desc)
     }
 
     private func loadShader() {
@@ -49,25 +66,50 @@ class MandelbrotRenderer: NSObject, MTKViewDelegate {
               let commandBuffer = commandQueue.makeCommandBuffer(),
               let encoder = commandBuffer.makeComputeCommandEncoder() else { return }
 
-        let texture = drawable.texture
-        encoder.setComputePipelineState(computePipeline)
-        encoder.setTexture(texture, index: 0)
+        // Smooth zoom interpolation
+        let lerpAmount = zoomAnimationSpeed
+        scale += (targetScale - scale) * lerpAmount
+        center += (targetCenter - center) * lerpAmount
 
-        // Set uniform buffer
+        // Encode Mandelbrot uniforms
         let uniforms = MandelbrotUniforms(center: center, scale: scale, maxIterations: maxIterations)
         uniformsBuffer = device.makeBuffer(bytes: [uniforms],
                                            length: MemoryLayout<MandelbrotUniforms>.stride,
                                            options: [])
+        encoder.setComputePipelineState(computePipeline)
+        encoder.setTexture(outputTexture, index: 0)
         encoder.setBuffer(uniformsBuffer, offset: 0, index: 0)
 
-        // Dispatch threads
         let w = computePipeline.threadExecutionWidth
         let h = computePipeline.maxTotalThreadsPerThreadgroup / w
         let threadsPerGroup = MTLSize(width: w, height: h, depth: 1)
-        let threadsPerGrid = MTLSize(width: texture.width, height: texture.height, depth: 1)
+        let threadsPerGrid = MTLSize(width: outputTexture.width, height: outputTexture.height, depth: 1)
 
         encoder.dispatchThreads(threadsPerGrid, threadsPerThreadgroup: threadsPerGroup)
         encoder.endEncoding()
+
+        // Copy centered portion of high-res texture to screen
+        if let blit = commandBuffer.makeBlitCommandEncoder() {
+            let outWidth = outputTexture.width
+            let outHeight = outputTexture.height
+            let drawWidth = drawable.texture.width
+            let drawHeight = drawable.texture.height
+
+            let offsetX = max((outWidth - drawWidth) / 2, 0)
+            let offsetY = max((outHeight - drawHeight) / 2, 0)
+            let copyWidth = min(outWidth, drawWidth)
+            let copyHeight = min(outHeight, drawHeight)
+
+            blit.copy(from: outputTexture,
+                      sourceSlice: 0, sourceLevel: 0,
+                      sourceOrigin: MTLOrigin(x: offsetX, y: offsetY, z: 0),
+                      sourceSize: MTLSize(width: copyWidth, height: copyHeight, depth: 1),
+                      to: drawable.texture,
+                      destinationSlice: 0, destinationLevel: 0,
+                      destinationOrigin: MTLOrigin(x: 0, y: 0, z: 0))
+            blit.endEncoding()
+        }
+
         commandBuffer.present(drawable)
         commandBuffer.commit()
     }

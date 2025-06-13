@@ -1,7 +1,7 @@
 import MetalKit
 
 class ZoomableMTKView: MTKView {
-    var onZoom: ((Float) -> Void)?
+    var onZoom: ((Float, CGPoint) -> Void)?
     var onPan: ((SIMD2<Float>) -> Void)?
 
     private var lastDragLocation: CGPoint?
@@ -9,7 +9,8 @@ class ZoomableMTKView: MTKView {
     override func scrollWheel(with event: NSEvent) {
         let deltaY = Float(event.scrollingDeltaY)
         let zoomFactor: Float = 1.0 - deltaY * 0.01
-        onZoom?(zoomFactor)
+        let mousePos = convert(event.locationInWindow, from: nil)
+        onZoom?(zoomFactor, mousePos)
     }
 
     override func mouseDown(with event: NSEvent) {
